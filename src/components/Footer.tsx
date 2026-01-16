@@ -1,31 +1,48 @@
 import { Mail, Phone, MapPin } from "lucide-react";
-
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-
   const links = {
-    services: [
-      { name: "Aerial Inspections", href: "#services" },
-      { name: "Land Surveying", href: "#services" },
-      { name: "Insurance Claims", href: "#services" },
-      { name: "Asset Monitoring", href: "#services" },
-    ],
-    industries: [
-      { name: "Insurance", href: "#industries" },
-      { name: "Construction", href: "#industries" },
-      { name: "Agriculture", href: "#industries" },
-      { name: "Utilities", href: "#industries" },
-    ],
-    company: [
-      { name: "About Us", href: "#" },
-      { name: "Careers", href: "#" },
-      { name: "Case Studies", href: "#" },
-      { name: "Contact", href: "#contact" },
-    ],
+    services: [{
+      name: "Aerial Inspections",
+      href: "#services"
+    }, {
+      name: "Land Surveying",
+      href: "#services"
+    }, {
+      name: "Insurance Claims",
+      href: "#services"
+    }, {
+      name: "Asset Monitoring",
+      href: "#services"
+    }],
+    industries: [{
+      name: "Insurance",
+      href: "#industries"
+    }, {
+      name: "Construction",
+      href: "#industries"
+    }, {
+      name: "Agriculture",
+      href: "#industries"
+    }, {
+      name: "Utilities",
+      href: "#industries"
+    }],
+    company: [{
+      name: "About Us",
+      href: "#"
+    }, {
+      name: "Careers",
+      href: "#"
+    }, {
+      name: "Case Studies",
+      href: "#"
+    }, {
+      name: "Contact",
+      href: "#contact"
+    }]
   };
-
-  return (
-    <footer className="bg-card border-t border-border">
+  return <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand Column */}
@@ -33,7 +50,7 @@ const Footer = () => {
             <div className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
                 <svg className="w-6 h-6 text-primary-foreground" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
               <span className="font-bold text-xl text-foreground">Onyx<span className="text-primary">View</span></span>
@@ -44,7 +61,7 @@ const Footer = () => {
             <div className="space-y-3">
               <a href="tel:+15551234567" className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors">
                 <Phone className="w-4 h-4" />
-                <span>(555) 123-4567</span>
+                <span>(818) 823-3924</span>
               </a>
               <a href="mailto:info@onyxview.com" className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors">
                 <Mail className="w-4 h-4" />
@@ -52,7 +69,7 @@ const Footer = () => {
               </a>
               <div className="flex items-center gap-3 text-muted-foreground">
                 <MapPin className="w-4 h-4" />
-                <span>Denver, Colorado</span>
+                <span>Southern California and Kansas City, MO</span>
               </div>
             </div>
           </div>
@@ -61,13 +78,11 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4 text-foreground">Services</h4>
             <ul className="space-y-3">
-              {links.services.map((link) => (
-                <li key={link.name}>
+              {links.services.map(link => <li key={link.name}>
                   <a href={link.href} className="text-muted-foreground hover:text-foreground transition-colors text-sm">
                     {link.name}
                   </a>
-                </li>
-              ))}
+                </li>)}
             </ul>
           </div>
 
@@ -75,13 +90,11 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4 text-foreground">Industries</h4>
             <ul className="space-y-3">
-              {links.industries.map((link) => (
-                <li key={link.name}>
+              {links.industries.map(link => <li key={link.name}>
                   <a href={link.href} className="text-muted-foreground hover:text-foreground transition-colors text-sm">
                     {link.name}
                   </a>
-                </li>
-              ))}
+                </li>)}
             </ul>
           </div>
 
@@ -89,13 +102,11 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4 text-foreground">Company</h4>
             <ul className="space-y-3">
-              {links.company.map((link) => (
-                <li key={link.name}>
+              {links.company.map(link => <li key={link.name}>
                   <a href={link.href} className="text-muted-foreground hover:text-foreground transition-colors text-sm">
                     {link.name}
                   </a>
-                </li>
-              ))}
+                </li>)}
             </ul>
           </div>
         </div>
@@ -111,8 +122,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;

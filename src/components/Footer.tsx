@@ -36,7 +36,7 @@ const Footer = () => {
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <span className="font-bold text-xl text-foreground">SkyView<span className="text-primary">Pro</span></span>
+              <span className="font-bold text-xl text-foreground">OnyxView<span className="text-primary">Pro</span></span>
             </div>
             <p className="text-muted-foreground mb-6 max-w-sm">
               Professional aerial surveying and data collection services. Transforming how industries capture and utilize geospatial data.
@@ -46,9 +46,9 @@ const Footer = () => {
                 <Phone className="w-4 h-4" />
                 <span>(555) 123-4567</span>
               </a>
-              <a href="mailto:info@skyviewpro.com" className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors">
+              <a href="mailto:info@onyxviewpro.com" className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors">
                 <Mail className="w-4 h-4" />
-                <span>info@skyviewpro.com</span>
+                <span>info@onyxviewpro.com</span>
               </a>
               <div className="flex items-center gap-3 text-muted-foreground">
                 <MapPin className="w-4 h-4" />
@@ -103,7 +103,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-muted-foreground text-sm">
-            © {currentYear} SkyViewPro. All rights reserved.
+            © {currentYear} OnyxViewPro. All rights reserved.
           </p>
           <div className="flex gap-6">
             <a href="#" className="text-muted-foreground hover:text-foreground transition-colors text-sm">Privacy Policy</a>

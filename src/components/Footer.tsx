@@ -59,8 +59,7 @@ const Footer = () => {
               Professional aerial surveying and data collection services. Transforming how industries capture and utilize geospatial data.
             </p>
             <div className="space-y-3">
-              <a href="tel:+15551234567" className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors">
-                <Phone className="w-4 h-4" />
+              <a href="tel:+15551234567" className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors">(818) 823-3924 (CA) or (929) 231-5479 (MO)<Phone className="w-4 h-4" />
                 <span>(818) 823-3924</span>
               </a>
               <a href="mailto:info@onyxview.com" className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors">

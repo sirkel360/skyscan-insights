@@ -1,10 +1,8 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Phone, MapPin } from "lucide-react";
-
 const Contact = () => {
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Header />
       
       <main className="pt-32 pb-20">
@@ -28,10 +26,7 @@ const Contact = () => {
               <p className="text-muted-foreground mb-6">
                 Serving Los Angeles, San Diego, Orange County, and surrounding areas
               </p>
-              <a 
-                href="tel:+18188233924" 
-                className="inline-flex items-center gap-3 text-2xl font-bold text-primary hover:text-primary/80 transition-colors"
-              >
+              <a href="tel:+18188233924" className="inline-flex items-center gap-3 text-2xl font-bold text-primary hover:text-primary/80 transition-colors">
                 <Phone className="w-6 h-6" />
                 (818) 823-3924
               </a>
@@ -43,13 +38,8 @@ const Contact = () => {
                 <MapPin className="w-8 h-8 text-primary-foreground" />
               </div>
               <h2 className="text-2xl font-bold text-foreground mb-2">Midwest Region</h2>
-              <p className="text-muted-foreground mb-6">
-                Serving Illinois, Indiana, Ohio, Michigan, and surrounding states
-              </p>
-              <a 
-                href="tel:+19292315479" 
-                className="inline-flex items-center gap-3 text-2xl font-bold text-primary hover:text-primary/80 transition-colors"
-              >
+              <p className="text-muted-foreground mb-6">Serving Missouri, Kansas, and surrounding states</p>
+              <a href="tel:+19292315479" className="inline-flex items-center gap-3 text-2xl font-bold text-primary hover:text-primary/80 transition-colors">
                 <Phone className="w-6 h-6" />
                 (929) 231-5479
               </a>
@@ -69,8 +59,6 @@ const Contact = () => {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Contact;

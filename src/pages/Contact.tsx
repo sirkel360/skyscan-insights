@@ -38,7 +38,8 @@ const Contact = () => {
                 <MapPin className="w-8 h-8 text-primary-foreground" />
               </div>
               <h2 className="text-2xl font-bold text-foreground mb-2">Midwest Region</h2>
-              <p className="text-muted-foreground mb-6">Serving Missouri, Kansas, and surrounding states</p>
+              <p className="text-muted-foreground mb-6">Serving Missouri, Kansas,
+and surrounding states</p>
               <a href="tel:+19292315479" className="inline-flex items-center gap-3 text-2xl font-bold text-primary hover:text-primary/80 transition-colors">
                 <Phone className="w-6 h-6" />
                 (929) 231-5479

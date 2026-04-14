@@ -63,13 +63,13 @@ const Footer = () => {
                 <Phone className="w-4 h-4" />
                 <span>(818) 823-3924</span>
               </a>
-              <a href="mailto:info@onyxview.com" className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors">
+              <a href="mailto:info@builtbyonyx.co" className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors">
                 <Mail className="w-4 h-4" />
-                <span>info@onyxview.com</span>
+                <span>info@builtbyonyx.co</span>
               </a>
               <div className="flex items-center gap-3 text-muted-foreground">
                 <MapPin className="w-4 h-4" />
-                <span>Southern California and Kansas City, MO</span>
+                <span>Southern California and Midwest</span>
               </div>
             </div>
           </div>

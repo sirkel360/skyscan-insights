@@ -1,9 +1,30 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight, Play, X } from "lucide-react";
 import heroImage from "@/assets/hero-aerial.jpg";
 
 const Hero = () => {
+  const [showDemo, setShowDemo] = useState(false);
+
   return (
+    <>
+      {showDemo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="relative w-[90vw] h-[85vh] rounded-lg overflow-hidden border border-border shadow-2xl">
+            <button
+              onClick={() => setShowDemo(false)}
+              className="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <iframe
+              src="/drone-demo.html"
+              className="w-full h-full border-0"
+              title="Drone Inspection Demo"
+            />
+          </div>
+        </div>
+      )}
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">

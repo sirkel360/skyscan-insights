@@ -58,7 +58,7 @@ const Hero = () => {
               Request a Demo
               <ArrowRight className="ml-2" />
             </Button>
-            <Button variant="hero-outline" size="xl">
+            <Button variant="hero-outline" size="xl" onClick={() => setShowDemo(true)}>
               <Play className="mr-2" />
               Watch How It Works
             </Button>

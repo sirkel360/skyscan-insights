@@ -29,7 +29,7 @@ const CTA = () => {
             </Button>
             <Button variant="hero-outline" size="xl">
               <Phone className="mr-2" />
-              Call (555) 123-4567
+              Call (818) 823-3924
             </Button>
           </div>
 

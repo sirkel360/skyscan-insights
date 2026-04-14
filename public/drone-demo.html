@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Drone Building Inspection - 3D Animation</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', 'Orbitron', 'Arial', sans-serif;
+        }
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.7);
+            color: #0ff;
+            padding: 10px 18px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            pointer-events: none;
+            font-size: 14px;
+            letter-spacing: 1px;
+            border-left: 4px solid #0ff;
+            box-shadow: 0 0 15px rgba(0,255,255,0.2);
+        }
+        #status {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.6);
+            color: #ffaa44;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 14px;
+            pointer-events: none;
+            font-weight: bold;
+            backdrop-filter: blur(4px);
+        }
+        .controls-note {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.5);
+            color: #ccc;
+            font-size: 11px;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            pointer-events: none;
+        }
+        @media (max-width: 600px) {
+            #info { font-size: 10px; top: 10px; left: 10px; }
+            #status { font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        🚁 DRONE INSPECTION ROUTINE | BUILDING SCAN
+    </div>
+    <div id="status">
+        🔍 STATUS: INSPECTING PERIMETER
+    </div>
+    <div class="controls-note">
+        🖱️ Drag to rotate view | Scroll to zoom
+    </div>
+
+    <!-- Import Three.js core and add-ons from CDN -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+        // --- Setup Scene, Cameras, Renderers ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x050b1a); // deep night/tech blue
+        scene.fog = new THREE.FogExp2(0x050b1a, 0.008); // subtle fog for depth
+
+        // Perspective Camera
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(12, 8, 18);
+        camera.lookAt(0, 3, 0);
+
+        // WebGL Renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true; // enable shadows for better realism
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        // CSS2 Renderer for text labels
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px';
+        labelRenderer.domElement.style.left = '0px';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        document.body.appendChild(labelRenderer.domElement);
+
+        // --- Controls (Orbit) with auto-rotate optional, but we let user control, better for inspection view)
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.autoRotate = false;
+        controls.enableZoom = true;
+        controls.zoomSpeed = 1.2;
+        controls.rotateSpeed = 0.8;
+        controls.target.set(0, 3.5, 0);
+
+        // --- Lighting System (dramatic but clear)
+        // Ambient light
+        const ambientLight = new THREE.AmbientLight(0x404060);
+        scene.add(ambientLight);
+        // Main directional light (sun)
+        const mainLight = new THREE.DirectionalLight(0xfff5e0, 1.2);
+        mainLight.position.set(5, 12, 4);
+        mainLight.castShadow = true;
+        mainLight.receiveShadow = false;
+        mainLight.shadow.mapSize.width = 1024;
+        mainLight.shadow.mapSize.height = 1024;
+        mainLight.shadow.camera.near = 0.5;
+        mainLight.shadow.camera.far = 20;
+        mainLight.shadow.camera.left = -8;
+        mainLight.shadow.camera.right = 8;
+        mainLight.shadow.camera.top = 8;
+        mainLight.shadow.camera.bottom = -8;
+        scene.add(mainLight);
+        
+        // Fill light from below and back
+        const fillLight = new THREE.PointLight(0x5577aa, 0.5);
+        fillLight.position.set(0, -1, 2);
+        scene.add(fillLight);
+        
+        // Rim light to highlight edges of building
+        const rimLight = new THREE.PointLight(0xffaa66, 0.6);
+        rimLight.position.set(-3, 5, -5);
+        scene.add(rimLight);
+        
+        // Additional warm backlight
+        const backLight = new THREE.PointLight(0xff9966, 0.4);
+        backLight.position.set(2, 4, -6);
+        scene.add(backLight);
+        
+        // subtle blue fill from below
+        const groundFill = new THREE.PointLight(0x3388ff, 0.3);
+        groundFill.position.set(0, -2, 0);
+        scene.add(groundFill);
+        
+        // --- Environment: Grid and ground plane (semi-transparent reflective look)
+        const gridHelper = new THREE.GridHelper(30, 20, 0x88aaff, 0x335588);
+        gridHelper.position.y = -0.2;
+        gridHelper.material.transparent = true;
+        gridHelper.material.opacity = 0.45;
+        scene.add(gridHelper);
+        
+        const groundPlane = new THREE.Mesh(
+            new THREE.PlaneGeometry(22, 22),
+            new THREE.ShadowMaterial({ opacity: 0.4, color: 0x000000, transparent: true, side: THREE.DoubleSide })
+        );
+        groundPlane.rotation.x = -Math.PI / 2;
+        groundPlane.position.y = -0.19;
+        groundPlane.receiveShadow = true;
+        scene.add(groundPlane);
+        
+        // --- Building Construction (Modern style with details, windows)
+        const buildingGroup = new THREE.Group();
+        
+        // Main tower
+        const mainBlockMat = new THREE.MeshStandardMaterial({ color: 0xcfd8e6, roughness: 0.25, metalness: 0.7, emissive: 0x000000 });
+        const mainBlock = new THREE.Mesh(new THREE.BoxGeometry(4.2, 5.8, 4.2), mainBlockMat);
+        mainBlock.castShadow = true;
+        mainBlock.receiveShadow = true;
+        mainBlock.position.y = 2.9;
+        buildingGroup.add(mainBlock);
+        
+        // Roof element
+        const roofMat = new THREE.MeshStandardMaterial({ color: 0x8b9dc3, metalness: 0.85, roughness: 0.3 });
+        const roof = new THREE.Mesh(new THREE.CylinderGeometry(2.3, 2.5, 0.6, 8), roofMat);
+        roof.position.y = 5.9;
+        roof.castShadow = true;
+        buildingGroup.add(roof);
+        
+        // Antenna/spire
+        const spireMat = new THREE.MeshStandardMaterial({ color: 0xdd8866, metalness: 0.9, emissive: 0x331100 });
+        const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.22, 0.9, 6), spireMat);
+        spire.position.y = 6.45;
+        spire.castShadow = true;
+        buildingGroup.add(spire);
+        
+        // Decorative stripes / ledges
+        const ledgeMat = new THREE.MeshStandardMaterial({ color: 0xaaaacc, metalness: 0.6 });
+        for (let i = 1; i <= 3; i++) {
+            const ledge = new THREE.Mesh(new THREE.BoxGeometry(4.6, 0.12, 4.6), ledgeMat);
+            ledge.position.y = i * 1.4;
+            ledge.castShadow = true;
+            buildingGroup.add(ledge);
+        }
+        
+        // Windows: array of glowing points using small cubes with emissive material
+        const windowMat = new THREE.MeshStandardMaterial({ color: 0xffdd99, emissive: 0xffaa44, emissiveIntensity: 0.5 });
+        const positions = [
+            // front face (z positive)
+            { pos: [-1.2, 1.2, 2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [0, 1.2, 2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [1.2, 1.2, 2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [-1.2, 2.7, 2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [0, 2.7, 2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [1.2, 2.7, 2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [-1.2, 4.2, 2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [0, 4.2, 2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [1.2, 4.2, 2.12], scale: [0.7, 0.9, 0.1] },
+            // back face
+            { pos: [-1.2, 1.2, -2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [0, 1.2, -2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [1.2, 1.2, -2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [-1.2, 2.7, -2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [0, 2.7, -2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [1.2, 2.7, -2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [-1.2, 4.2, -2.12], scale: [0.7, 0.9, 0.1] },
+            { pos: [0, 4.2, -2.12], scale: [0.7, 0.9, 0.1] },
+            // left face
+            { pos: [-2.12, 1.2, -1.2], scale: [0.1, 0.9, 0.7] },
+            { pos: [-2.12, 1.2, 0], scale: [0.1, 0.9, 0.7] },
+            { pos: [-2.12, 1.2, 1.2], scale: [0.1, 0.9, 0.7] },
+            { pos: [-2.12, 2.7, -1.2], scale: [0.1, 0.9, 0.7] },
+            { pos: [-2.12, 2.7, 0], scale: [0.1, 0.9, 0.7] },
+            { pos: [-2.12, 2.7, 1.2], scale: [0.1, 0.9, 0.7] },
+            { pos: [-2.12, 4.2, -1.2], scale: [0.1, 0.9, 0.7] },
+            { pos: [-2.12, 4.2, 0], scale: [0.1, 0.9, 0.7] },
+            // right face
+            { pos: [2.12, 1.2, -1.2], scale: [0.1, 0.9, 0.7] },
+            { pos: [2.12, 1.2, 0], scale: [0.1, 0.9, 0.7] },
+            { pos: [2.12, 1.2, 1.2], scale: [0.1, 0.9, 0.7] },
+            { pos: [2.12, 2.7, -1.2], scale: [0.1, 0.9, 0.7] },
+            { pos: [2.12, 2.7, 0], scale: [0.1, 0.9, 0.7] },
+            { pos: [2.12, 2.7, 1.2], scale: [0.1, 0.9, 0.7] },
+            { pos: [2.12, 4.2, -1.2], scale: [0.1, 0.9, 0.7] }
+        ];
+        
+        positions.forEach(pos => {
+            const win = new THREE.Mesh(new THREE.BoxGeometry(pos.scale[0], pos.scale[1], pos.scale[2]), windowMat);
+            win.position.set(pos.pos[0], pos.pos[1], pos.pos[2]);
+            win.castShadow = true;
+            buildingGroup.add(win);
+        });
+        
+        // Entrance detail
+        const doorMat = new THREE.MeshStandardMaterial({ color: 0xaa9977, metalness: 0.2 });
+        const door = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.6, 0.2), doorMat);
+        door.position.set(0, 0.9, 2.13);
+        door.castShadow = true;
+        buildingGroup.add(door);
+        
+        scene.add(buildingGroup);
+        
+        // --- Surrounding: simple trees or light posts for context
+        const treeMatTrunk = new THREE.MeshStandardMaterial({ color: 0x8B5A2B });
+        const treeMatFoliage = new THREE.MeshStandardMaterial({ color: 0x5c9e5e });
+        function addTree(x, z) {
+            const group = new THREE.Group();
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.45, 0.8, 6), treeMatTrunk);
+            trunk.position.y = 0.4;
+            trunk.castShadow = true;
+            const foliage1 = new THREE.Mesh(new THREE.ConeGeometry(0.55, 0.9, 8), treeMatFoliage);
+            foliage1.position.y = 0.9;
+            foliage1.castShadow = true;
+            const foliage2 = new THREE.Mesh(new THREE.ConeGeometry(0.45, 0.7, 8), treeMatFoliage);
+            foliage2.position.y = 1.45;
+            foliage2.castShadow = true;
+            group.add(trunk, foliage1, foliage2);
+            group.position.set(x, 0, z);
+            scene.add(group);
+        }
+        addTree(-3.8, -4.2);
+        addTree(4.2, -4.5);
+        addTree(-4.5, 3.5);
+        addTree(4.8, 3.8);
+        addTree(-5, 0);
+        addTree(5.2, 0.5);
+        
+        // --- DRONE MODEL (Stylized quadcopter)
+        const droneGroup = new THREE.Group();
+        
+        // Body
+        const bodyGeo = new THREE.BoxGeometry(0.55, 0.22, 0.65);
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x333a4a, metalness: 0.7, roughness: 0.3 });
+        const body = new THREE.Mesh(bodyGeo, bodyMat);
+        body.castShadow = true;
+        body.receiveShadow = false;
+        droneGroup.add(body);
+        
+        // Arms (cross)
+        const armMat = new THREE.MeshStandardMaterial({ color: 0x5a6e8a, metalness: 0.6 });
+        const arm1 = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.08, 0.12), armMat);
+        arm1.position.set(0, 0, 0);
+        arm1.castShadow = true;
+        const arm2 = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 1.1), armMat);
+        arm2.position.set(0, 0, 0);
+        arm2.castShadow = true;
+        droneGroup.add(arm1);
+        droneGroup.add(arm2);
+        
+        // Rotor bases (small cylinders)
+        const rotorBaseMat = new THREE.MeshStandardMaterial({ color: 0xccccdd });
+        const positionsRotor = [[-0.6, 0.05, -0.6], [0.6, 0.05, -0.6], [-0.6, 0.05, 0.6], [0.6, 0.05, 0.6]];
+        const rotors = [];
+        positionsRotor.forEach(pos => {
+            const base = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.08, 8), rotorBaseMat);
+            base.position.set(pos[0], pos[1], pos[2]);
+            base.castShadow = true;
+            droneGroup.add(base);
+            // propeller blades (two crossing)
+            const propGroup = new THREE.Group();
+            const bladeMat = new THREE.MeshStandardMaterial({ color: 0xbbccff, metalness: 0.5 });
+            const blade1 = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.05, 0.12), bladeMat);
+            blade1.position.x = 0;
+            const blade2 = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.05, 0.65), bladeMat);
+            blade2.position.z = 0;
+            propGroup.add(blade1, blade2);
+            propGroup.position.set(pos[0], pos[1] + 0.1, pos[2]);
+            propGroup.castShadow = true;
+            droneGroup.add(propGroup);
+            rotors.push(propGroup);
+        });
+        
+        // LED ring on body
+        const ledMat = new THREE.MeshStandardMaterial({ color: 0xff3300, emissive: 0xff2200, emissiveIntensity: 0.8 });
+        const ledRing = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), ledMat);
+        ledRing.position.set(0, 0.15, 0.32);
+        droneGroup.add(ledRing);
+        
+        // camera gimbal underneath
+        const camMat = new THREE.MeshStandardMaterial({ color: 0x111122, metalness: 0.9 });
+        const gimbal = new THREE.Mesh(new THREE.SphereGeometry(0.1, 6, 6), camMat);
+        gimbal.position.set(0, -0.08, 0.25);
+        droneGroup.add(gimbal);
+        
+        scene.add(droneGroup);
+        
+        // --- Drone inspection path: elliptical orbit around building with altitude variation
+        // Define path points: circular but with slight vertical undulation to inspect floors
+        const pathPoints = [];
+        const radiusX = 5.2;
+        const radiusZ = 4.8;
+        const steps = 360;
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps; // 0 to 1
+            const angle = t * Math.PI * 2;
+            const x = Math.cos(angle) * radiusX;
+            const z = Math.sin(angle) * radiusZ;
+            // Altitude varies: go up for upper floors and down for lower, but also slight wave
+            let y = 2.2 + Math.sin(angle * 2) * 1.2 + Math.cos(angle * 1.5) * 0.7;
+            // clamp between 1.0 and 5.2
+            y = Math.min(5.0, Math.max(1.4, y));
+            pathPoints.push(new THREE.Vector3(x, y, z));
+        }
+        
+        // Add a visual path helper (line)
+        const lineGeometry = new THREE.BufferGeometry().setFromPoints(pathPoints);
+        const lineMat = new THREE.LineBasicMaterial({ color: 0x33ccff, transparent: true, opacity: 0.35 });
+        const flightPath = new THREE.Line(lineGeometry, lineMat);
+        scene.add(flightPath);
+        
+        // Add floating particles (dust/sparks) to enhance inspection feel
+        const particleCount = 400;
+        const particleGeometry = new THREE.BufferGeometry();
+        const particlePositions = new Float32Array(particleCount * 3);
+        for (let i = 0; i < particleCount; i++) {
+            particlePositions[i*3] = (Math.random() - 0.5) * 18;
+            particlePositions[i*3+1] = Math.random() * 7;
+            particlePositions[i*3+2] = (Math.random() - 0.5) * 16;
+        }
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        const particleMatGlow = new THREE.PointsMaterial({ color: 0x88aaff, size: 0.05, transparent: true, opacity: 0.5 });
+        const particles = new THREE.Points(particleGeometry, particleMatGlow);
+        scene.add(particles);
+        
+        // --- CSS2D Labels: building info points (fake inspection data)
+        function makeLabel(text, color, position, fontSize = '14px') {
+            const div = document.createElement('div');
+            div.textContent = text;
+            div.style.color = color;
+            div.style.fontSize = fontSize;
+            div.style.fontWeight = 'bold';
+            div.style.textShadow = '0 0 5px black';
+            div.style.background = 'rgba(0,0,0,0.6)';
+            div.style.padding = '2px 8px';
+            div.style.borderRadius = '20px';
+            div.style.borderLeft = `3px solid ${color}`;
+            div.style.fontFamily = 'monospace';
+            div.style.backdropFilter = 'blur(4px)';
+            const label = new CSS2DObject(div);
+            label.position.copy(position);
+            scene.add(label);
+            return label;
+        }
+        
+        makeLabel('🏢 MAIN STRUCTURE', '#aaffdd', new THREE.Vector3(0, 6.2, 0), '12px');
+        makeLabel('🔍 THERMAL SCAN ZONE', '#ffaa66', new THREE.Vector3(2.5, 3.5, 2.8), '10px');
+        makeLabel('📡 ROOF ANTENNA', '#88ffaa', new THREE.Vector3(0.8, 6.7, -1.2), '10px');
+        makeLabel('💡 WINDOW INTEGRITY', '#66ccff', new THREE.Vector3(-2.2, 2.0, 2.5), '10px');
+        makeLabel('⚙️ HVAC UNIT', '#ffaa88', new THREE.Vector3(3.0, 4.3, -2.0), '10px');
+        
+        // Dynamic status updates based on drone progress
+        const statusDiv = document.getElementById('status');
+        let progress = 0;
+        
+        // Animation loop for drone along path
+        let index = 0;
+        let tPos = 0; // 0 to 1
+        const speed = 0.0028; // smooth movement
+        
+        // Rotors spinning animation
+        function animateRotors() {
+            rotors.forEach(rotor => {
+                rotor.rotation.y += 0.2;
+                rotor.rotation.x += 0.05;
+            });
+        }
+        
+        // Pulsing LED
+        let ledIntensity = 0.8;
+        let ledDir = 0.02;
+        
+        // Additional camera light (small spotlight from drone)
+        const droneSpot = new THREE.SpotLight(0xffaa66, 0.7);
+        droneSpot.angle = 0.4;
+        droneSpot.penumbra = 0.3;
+        droneSpot.distance = 12;
+        droneSpot.castShadow = false;
+        droneGroup.add(droneSpot);
+        droneSpot.position.set(0, -0.1, 0.4);
+        
+        // small point light for glow
+        const droneGlow = new THREE.PointLight(0xff6600, 0.5, 8);
+        droneGroup.add(droneGlow);
+        droneGlow.position.set(0, 0.1, 0);
+        
+        // Helper to update status text based on drone height/position
+        function updateStatusFromPosition(pos) {
+            const y = pos.y;
+            if (y > 4.2) statusDiv.innerHTML = "🔍 STATUS: INSPECTING UPPER LEVELS | ROOF SCAN";
+            else if (y > 2.8) statusDiv.innerHTML = "🔍 STATUS: MID-LEVEL FACADE INSPECTION | WINDOW CHECK";
+            else statusDiv.innerHTML = "🔍 STATUS: GROUND PERIMETER | FOUNDATION SCAN";
+            // Additional effect based on angle
+            const angleRad = Math.atan2(pos.z, pos.x);
+            const sector = Math.floor((angleRad + Math.PI) / (Math.PI/4)) % 8;
+            const directions = ["NORTH", "NORTH-EAST", "EAST", "SOUTH-EAST", "SOUTH", "SOUTH-WEST", "WEST", "NORTH-WEST"];
+            statusDiv.innerHTML += ` | FACING ${directions[sector]}`;
+        }
+        
+        // Animate
+        let lastTimestamp = 0;
+        function animate(time) {
+            const delta = Math.min(0.033, (time - lastTimestamp) / 1000);
+            lastTimestamp = time;
+            
+            // Move drone along path
+            tPos += speed;
+            if (tPos >= 1) tPos -= 1;
+            
+            // get position on path (linear interpolation)
+            const totalPoints = pathPoints.length;
+            const exactIdx = tPos * (totalPoints - 1);
+            const idx1 = Math.floor(exactIdx);
+            const idx2 = Math.min(idx1 + 1, totalPoints - 1);
+            const frac = exactIdx - idx1;
+            
+            const p1 = pathPoints[idx1];
+            const p2 = pathPoints[idx2];
+            const dronePos = new THREE.Vector3().lerpVectors(p1, p2, frac);
+            droneGroup.position.copy(dronePos);
+            
+            // orient drone to face direction of movement (simple look at next point)
+            const nextIdx = Math.min(idx1 + 2, totalPoints - 1);
+            const targetDir = pathPoints[nextIdx].clone().sub(dronePos).normalize();
+            // drone forward is +Z, so compute quaternion
+            const quaternion = new THREE.Quaternion().setFromUnitVectors(
+                new THREE.Vector3(0, 0, 1),
+                targetDir
+            );
+            droneGroup.quaternion.copy(quaternion);
+            // slight banking based on y change? not needed, but add slight tilt for style
+            const bank = (p2.y - p1.y) * 0.8;
+            droneGroup.rotateZ(Math.sin(time * 0.015) * 0.1);
+            
+            // Update status text
+            updateStatusFromPosition(dronePos);
+            
+            // LED pulse
+            ledIntensity += ledDir;
+            if (ledIntensity >= 1.2) ledDir = -0.02;
+            if (ledIntensity <= 0.5) ledDir = 0.02;
+            ledRing.material.emissiveIntensity = ledIntensity;
+            droneGlow.intensity = 0.4 + Math.sin(time * 0.02) * 0.2;
+            
+            // Rotors animation
+            animateRotors();
+            
+            // Particles gentle movement
+            particles.rotation.y += 0.002;
+            particles.rotation.x += 0.001;
+            
+            // Update spotlight to always point toward building center
+            const buildingCenter = new THREE.Vector3(0, 3, 0);
+            const dirToBuilding = buildingCenter.clone().sub(dronePos).normalize();
+            droneSpot.target.position.copy(buildingCenter);
+            // Need to add target to scene for spotlight
+            if (!droneSpot.target.parent) scene.add(droneSpot.target);
+            
+            // Update CSS2D labels orientation to always face camera (already CSS2DRenderer does that)
+            
+            // Animate camera slight auto orbit? no, leave controls to user but we can slowly adjust target? Not needed.
+            // Update controls target to be building center
+            controls.target.lerp(new THREE.Vector3(0, 3.2, 0), 0.05);
+            controls.update();
+            
+            // Render
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Start animation with timestamp
+        requestAnimationFrame(animate);
+        
+        // handle window resize
+        window.addEventListener('resize', onWindowResize, false);
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Small console greeting
+        console.log('Drone Inspection Simulation Started | Building Scan Active');
+    </script>
+</body>
+</html>
